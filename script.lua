@@ -4,36 +4,33 @@ local stopDistance = 5   -- Расстояние, на котором персо
 
 -- Функция для проверки расстояния и изменения скорости
 local function handleApproach()
-    while true do
-        wait(0.5)  -- Проверяем расстояние каждые 0.5 секунды (можно изменить интервал)
-
+    game:GetService("RunService").Stepped:Connect(function()
         -- Проверяем каждого игрока в игре
-        for _, player in ipairs(delta.players:getPlayers()) do
-            if player ~= delta.localPlayer then
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            if player ~= game.Players.LocalPlayer then
                 local character = player.Character
                 if character then
                     local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
                     if humanoidRootPart then
-                        local localCharacter = delta.localPlayer.Character
+                        local localCharacter = game.Players.LocalPlayer.Character
                         local localHumanoidRootPart = localCharacter:FindFirstChild("HumanoidRootPart")
                         
                         local distance = (localHumanoidRootPart.Position - humanoidRootPart.Position).magnitude
 
                         -- Если игрок подошел на расстояние stopDistance, останавливаем его
                         if distance < stopDistance then
-                            delta.network:invoke("MoveCharacter", player, localHumanoidRootPart.Position)
+                            humanoidRootPart.Anchored = true
+                            humanoidRootPart.Velocity = Vector3.new(0, 0, 0)
                         elseif distance < slowDistance then
                             -- Если игрок подошел на расстояние slowDistance, замедляем его
                             local slowdownFactor = 0.5  -- Фактор замедления (можно изменить)
-                            local newPosition = (localHumanoidRootPart.Position - humanoidRootPart.Position) * slowdownFactor
-
-                            delta.network:invoke("MoveCharacter", player, newPosition)
+                            humanoidRootPart.Velocity = humanoidRootPart.Velocity * slowdownFactor
                         end
                     end
                 end
             end
         end
-    end
+    end)
 end
 
 -- Запускаем функцию проверки расстояния
