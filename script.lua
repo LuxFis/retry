@@ -1,28 +1,34 @@
--- Переменные для настройки
-local slowDistance = 10  -- Расстояние, на котором начинается замедление
-local stopDistance = 5   -- Расстояние, на котором персонажи останавливаются
+-- Настройки
+local slowDistance = 10  -- Расстояние для замедления
+local stopDistance = 5   -- Расстояние для остановки
 
--- Функция для проверки расстояния и изменения скорости
+-- Функция для обработки действий
 local function handleApproach()
+    -- Соединение с событием обновления
     game:GetService("RunService").Stepped:Connect(function()
-        -- Проверяем каждого игрока в игре
+        -- Перебор всех игроков в игре
         for _, player in ipairs(game.Players:GetPlayers()) do
+            -- Игрок, который не является локальным игроком
             if player ~= game.Players.LocalPlayer then
+                -- Получение персонажа игрока
                 local character = player.Character
                 if character then
+                    -- Получение корневой части Humanoid
                     local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
                     if humanoidRootPart then
+                        -- Получение корневой части Humanoid локального игрока
                         local localCharacter = game.Players.LocalPlayer.Character
                         local localHumanoidRootPart = localCharacter:FindFirstChild("HumanoidRootPart")
                         
+                        -- Вычисление расстояния между локальным игроком и другими игроками
                         local distance = (localHumanoidRootPart.Position - humanoidRootPart.Position).magnitude
 
-                        -- Если игрок подошел на расстояние stopDistance, останавливаем его
+                        -- Если игрок подходит на расстояние для остановки, останавливаем его
                         if distance < stopDistance then
                             humanoidRootPart.Anchored = true
                             humanoidRootPart.Velocity = Vector3.new(0, 0, 0)
                         elseif distance < slowDistance then
-                            -- Если игрок подошел на расстояние slowDistance, замедляем его
+                            -- Если игрок подходит на расстояние для замедления, замедляем его
                             local slowdownFactor = 0.5  -- Фактор замедления (можно изменить)
                             humanoidRootPart.Velocity = humanoidRootPart.Velocity * slowdownFactor
                         end
@@ -33,5 +39,5 @@ local function handleApproach()
     end)
 end
 
--- Запускаем функцию проверки расстояния
+-- Запускаем функцию обработки
 handleApproach()
